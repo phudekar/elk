@@ -1,0 +1,32 @@
+elasticsearch:
+  image: elasticsearch:2.3.3
+  # volumes:
+    # - ./elasticsearch/data:/usr/share/elasticsearch/data
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+
+logstash:
+  image: logstash:2.3.2
+  volumes:
+    - ./logstash/config-dir:/config-dir
+  command: [-f, /config-dir/logstash.conf]
+  expose:
+    - "5400"
+  links:
+    - elasticsearch
+
+kibana:
+  image: kibana:4.5.1
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch
+
+filebeat:
+  image: prima/filebeat:1.2.3
+  volumes:
+    - ./filebeat/filebeat.yml:/filebeat.yml
+    - /var/application/logs:/var/log
+  links:
+    - logstash
